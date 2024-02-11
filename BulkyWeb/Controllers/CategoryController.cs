@@ -1,6 +1,7 @@
 ﻿using BulkyWeb.Data;
 using BulkyWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWeb.Controllers;
 
@@ -11,6 +12,7 @@ public class CategoryController(ApplicationDbContext db) : Controller
         var ObjCategoryList = db.Categories.ToList();
         return View(ObjCategoryList);
     }
+
     public IActionResult Create()
     {
         return View();
@@ -26,6 +28,31 @@ public class CategoryController(ApplicationDbContext db) : Controller
         if (ModelState.IsValid)
         {
             db.Categories.Add(obj);
+            db.SaveChanges();
+            return RedirectToAction("Index");
+        }
+        return View();
+    }
+
+    public IActionResult Edit(int? id)
+    {
+        if (id == null || id == 0)
+        {
+            return NotFound();
+        }
+        var categoryFromDb = db.Categories.Find(id);
+        if (categoryFromDb == null)
+        {
+            return NotFound();
+        }
+        return View(categoryFromDb);
+    }
+    [HttpPost]
+    public IActionResult Edit(Category obj)
+    {
+        if (ModelState.IsValid)
+        {
+            db.Categories.Update(obj);
             db.SaveChanges();
             return RedirectToAction("Index");
         }
