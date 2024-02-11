@@ -58,5 +58,30 @@ public class CategoryController(ApplicationDbContext db) : Controller
         }
         return View();
     }
-
+    public IActionResult Delete(int? id)
+    {
+        if (id == null || id == 0)
+        {
+            return NotFound();
+        }
+        var categoryFromDb = db.Categories.Find(id);
+        if (categoryFromDb == null)
+        {
+            return NotFound();
+        }
+        return View(categoryFromDb);
+    }
+    [HttpPost, ActionName("Delete")]
+    public IActionResult DeletePOST(int? id)
+    {
+        var categoryFromDb = db.Categories.Find(id);
+        if (categoryFromDb == null)
+        {
+            return NotFound();
+        }
+        db.Categories.Remove(categoryFromDb);
+        db.SaveChanges();
+        db.SaveChanges();
+        return RedirectToAction("Index");
+    }
 }
