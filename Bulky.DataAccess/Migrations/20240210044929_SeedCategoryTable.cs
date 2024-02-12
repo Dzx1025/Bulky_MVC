@@ -2,19 +2,19 @@
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
-namespace BulkyWeb.Migrations
+namespace Bulky.DataAccess.Migrations
 {
     /// <inheritdoc />
     public partial class SeedCategoryTable : Migration
     {
+        private static readonly string[] columns = ["Id", "DisplayOrder", "Name"];
+
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "DisplayOrder", "Name" },
+                columns: columns,
                 values: new object[,]
                 {
                     { 1, 1, "Action" },

@@ -1,7 +1,6 @@
-﻿using BulkyWeb.Data;
-using BulkyWeb.Models;
+﻿using Bulky.DataAccess.Data;
+using Bulky.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace BulkyWeb.Controllers;
 
@@ -20,17 +19,12 @@ public class CategoryController(ApplicationDbContext db) : Controller
     [HttpPost]
     public IActionResult Create(Category obj)
     {
-        //if (obj.Name == obj.DisplayOrder.ToString())
-        //{
-        //    ModelState.AddModelError("Name", "The DisplayOrder cannot exactly match the Name.");
-        //}
-
         if (ModelState.IsValid)
         {
             db.Categories.Add(obj);
             db.SaveChanges();
             TempData["success"] = "Category created successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
         return View();
     }
@@ -56,7 +50,7 @@ public class CategoryController(ApplicationDbContext db) : Controller
             db.Categories.Update(obj);
             db.SaveChanges();
             TempData["success"] = "Category updated successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
         return View();
     }
@@ -84,6 +78,6 @@ public class CategoryController(ApplicationDbContext db) : Controller
         db.Categories.Remove(categoryFromDb);
         db.SaveChanges();
         TempData["success"] = "Category deleted successfully";
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 }
