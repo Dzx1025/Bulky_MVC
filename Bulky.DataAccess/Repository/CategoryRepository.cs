@@ -8,11 +8,6 @@ public class CategoryRepository(ApplicationDbContext _db) : Repository<Category>
 {
     private readonly ApplicationDbContext _db = _db;
 
-    public void Save()
-    {
-        _db.SaveChanges();
-    }
-
     public void Update(Category obj)
     {
         _db.Update(obj);
