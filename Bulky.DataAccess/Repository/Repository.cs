@@ -22,7 +22,7 @@ public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : c
 
     public T Get(Expression<Func<T, bool>> filter)
     {
-        IQueryable<T> query = dbSet.AsQueryable();
+        var query = dbSet.AsQueryable();
         query = query.Where(filter);
         return query.FirstOrDefault();
     }
@@ -43,4 +43,3 @@ public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : c
         dbSet.RemoveRange(entities);
     }
 }
-
