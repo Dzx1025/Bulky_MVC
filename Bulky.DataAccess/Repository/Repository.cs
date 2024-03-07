@@ -1,19 +1,15 @@
 ﻿using BulkyBook.DataAccess.Data;
 using BulkyBook.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BulkyBook.DataAccess.Repository;
 
-public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : class
+public class Repository<T>(ApplicationDbContext _db) : IRepository<T> where T : class
 {
-    //private readonly ApplicationDbContext _db = db;
-    internal DbSet<T> dbSet = db.Set<T>();
+    private readonly ApplicationDbContext _db = _db;
+
+    internal DbSet<T> dbSet = _db.Set<T>();
 
     public void Add(T entity)
     {
@@ -22,7 +18,7 @@ public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : c
 
     public T Get(Expression<Func<T, bool>> filter)
     {
-        IQueryable<T> query = dbSet.AsQueryable();
+        var query = dbSet.AsQueryable();
         query = query.Where(filter);
         return query.FirstOrDefault();
     }
@@ -30,7 +26,7 @@ public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : c
     public IEnumerable<T> GetAll()
     {
         IQueryable<T> query = dbSet.AsQueryable();
-        return query.ToList();
+        return [.. query];
     }
 
     public void Remove(T entity)
@@ -43,4 +39,3 @@ public class Repository<T>(ApplicationDbContext db) : IRepository<T> where T : c
         dbSet.RemoveRange(entities);
     }
 }
-

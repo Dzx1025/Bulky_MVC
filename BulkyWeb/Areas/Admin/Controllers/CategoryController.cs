@@ -19,6 +19,7 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
     {
         return View();
     }
+
     [HttpPost]
     public IActionResult Create(Category obj)
     {
@@ -29,6 +30,7 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
             TempData["success"] = "Category created successfully";
             return RedirectToAction(nameof(Index));
         }
+
         return View();
     }
 
@@ -38,13 +40,16 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
         {
             return NotFound();
         }
+
         var categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
         if (categoryFromDb == null)
         {
             return NotFound();
         }
+
         return View(categoryFromDb);
     }
+
     [HttpPost]
     public IActionResult Edit(Category obj)
     {
@@ -55,6 +60,7 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
             TempData["success"] = "Category updated successfully";
             return RedirectToAction(nameof(Index));
         }
+
         return View();
     }
 
@@ -64,13 +70,16 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
         {
             return NotFound();
         }
+
         var categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
         if (categoryFromDb == null)
         {
             return NotFound();
         }
+
         return View(categoryFromDb);
     }
+
     [HttpPost, ActionName("Delete")]
     public IActionResult DeletePOST(int? id)
     {
@@ -79,6 +88,7 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
         {
             return NotFound();
         }
+
         _unitOfWork.Category.Remove(categoryFromDb);
         _unitOfWork.Save();
         TempData["success"] = "Category deleted successfully";

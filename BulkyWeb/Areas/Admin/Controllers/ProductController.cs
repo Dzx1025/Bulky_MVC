@@ -42,6 +42,7 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
             return View(productVM);
         }
     }
+
     [HttpPost]
     public IActionResult Upsert(ProductVM productVM, IFormFile? file)
     {
@@ -81,13 +82,16 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
         {
             return NotFound();
         }
+
         var productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
         if (productFromDb == null)
         {
             return NotFound();
         }
+
         return View(productFromDb);
     }
+
     [HttpPost, ActionName("Delete")]
     public IActionResult DeletePOST(int? id)
     {
@@ -96,6 +100,7 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
         {
             return NotFound();
         }
+
         _unitOfWork.Product.Remove(productFromDb);
         _unitOfWork.Save();
         TempData["success"] = "Product deleted successfully";
