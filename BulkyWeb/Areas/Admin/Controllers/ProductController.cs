@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace BulkyBookWeb.Areas.Admin.Controllers;
 
 [Area("Admin")]
-public class ProductController(IUnitOfWork unitOfWork) : Controller
+public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _webHostEnvironment) : Controller
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IUnitOfWork _unitOfWork = _unitOfWork;
+    private readonly IWebHostEnvironment _webHostEnvironment = _webHostEnvironment;
 
     public IActionResult Index()
     {
@@ -46,6 +47,17 @@ public class ProductController(IUnitOfWork unitOfWork) : Controller
     {
         if (ModelState.IsValid)
         {
+            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            if (file != null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                string productPath = Path.Combine(wwwRootPath, @"images/product");
+                using var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create);
+                file.CopyTo(fileStream);
+
+                productVM.Product.ImageUrl = @"/images/product/" + fileName;
+            }
+
             _unitOfWork.Product.Add(productVM.Product);
             _unitOfWork.Save();
             TempData["success"] = "Product created successfully";
@@ -58,6 +70,7 @@ public class ProductController(IUnitOfWork unitOfWork) : Controller
                 Text = u.Name,
                 Value = u.Id.ToString(),
             });
+
             return View(productVM);
         }
     }
