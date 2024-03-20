@@ -10,4 +10,3 @@ public class ProductVM
     public IEnumerable<SelectListItem> CategoryList { get; set; }
 
 }
-
