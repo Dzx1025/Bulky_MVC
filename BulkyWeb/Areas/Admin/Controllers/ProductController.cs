@@ -14,7 +14,7 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
 
     public IActionResult Index()
     {
-        var ObjProductList = _unitOfWork.Product.GetAll().ToList();
+        var ObjProductList = _unitOfWork.Product.GetAll("Category").ToList();
 
         return View(ObjProductList);
     }

@@ -5,27 +5,48 @@ using System.Linq.Expressions;
 
 namespace BulkyBook.DataAccess.Repository;
 
-public class Repository<T>(ApplicationDbContext _db) : IRepository<T> where T : class
+public class Repository<T> : IRepository<T> where T : class
 {
-    private readonly ApplicationDbContext _db = _db;
+    private readonly ApplicationDbContext _db;
 
-    internal DbSet<T> dbSet = _db.Set<T>();
+    internal DbSet<T> dbSet;
+
+    public Repository(ApplicationDbContext db)
+    {
+        _db = db;
+        dbSet = db.Set<T>();
+        _db.Products.Include(u => u.Category).Include(u => u.CategoryId);
+    }
 
     public void Add(T entity)
     {
         dbSet.Add(entity);
     }
 
-    public T Get(Expression<Func<T, bool>> filter)
+    public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null)
     {
         var query = dbSet.AsQueryable();
         query = query.Where(filter);
+        if (!string.IsNullOrEmpty(includeProperties))
+        {
+            foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProp);
+            }
+        }
         return query.FirstOrDefault();
     }
 
-    public IEnumerable<T> GetAll()
+    public IEnumerable<T> GetAll(string? includeProperties = null)
     {
         IQueryable<T> query = dbSet.AsQueryable();
+        if (!string.IsNullOrEmpty(includeProperties))
+        {
+            foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProp);
+            }
+        }
         return [.. query];
     }
 
