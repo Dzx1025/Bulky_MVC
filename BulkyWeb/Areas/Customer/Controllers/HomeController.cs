@@ -1,3 +1,4 @@
+using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -5,13 +6,15 @@ using System.Diagnostics;
 namespace BulkyBookWeb.Areas.Customer.Controllers;
 
 [Area("Customer")]
-public class HomeController(ILogger<HomeController> logger) : Controller
+public class HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork) : Controller
 {
     private readonly ILogger<HomeController> _logger = logger;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public IActionResult Index()
     {
-        return View();
+        var productList = _unitOfWork.Product.GetAll(includeProperties: "Category");
+        return View(productList);
     }
 
     public IActionResult Privacy()

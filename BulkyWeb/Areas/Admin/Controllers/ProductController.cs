@@ -38,7 +38,7 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
         else
         {
             // Update
-            productVM.Product = _unitOfWork.Product.Get(u => id == u.Id);
+            productVM.Product = _unitOfWork.Product.Get(u => u.Id == id);
             return View(productVM);
         }
     }
