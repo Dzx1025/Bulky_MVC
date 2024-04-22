@@ -1,15 +1,19 @@
 ﻿using BulkyBook.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BulkyBook.DataAccess.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Category>().HasData(
             new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
             new Category { Id = 2, Name = "SciFi", DisplayOrder = 2 },
