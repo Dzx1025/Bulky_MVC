@@ -27,26 +27,20 @@ public class Repository<T> : IRepository<T> where T : class
     {
         var query = dbSet.AsQueryable();
         query = query.Where(filter);
-        if (!string.IsNullOrEmpty(includeProperties))
-        {
-            foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProp);
-            }
-        }
+        if (string.IsNullOrEmpty(includeProperties)) return query.FirstOrDefault();
+        query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+
         return query.FirstOrDefault();
     }
 
     public IEnumerable<T> GetAll(string? includeProperties = null)
     {
-        IQueryable<T> query = dbSet.AsQueryable();
-        if (!string.IsNullOrEmpty(includeProperties))
-        {
-            foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProp);
-            }
-        }
+        var query = dbSet.AsQueryable();
+        if (string.IsNullOrEmpty(includeProperties)) return [.. query];
+        query = includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            .Aggregate(query, (current, includeProp) => current.Include(includeProp));
+
         return [.. query];
     }
 
