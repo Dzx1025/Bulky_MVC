@@ -10,40 +10,34 @@ namespace BulkyBookWeb.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = SD.Role_Admin)]
-public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _webHostEnvironment) : Controller
+public class ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) : Controller
 {
-    private readonly IUnitOfWork _unitOfWork = _unitOfWork;
-    private readonly IWebHostEnvironment _webHostEnvironment = _webHostEnvironment;
-
     public IActionResult Index()
     {
-        var ObjProductList = _unitOfWork.Product.GetAll("Category").ToList();
-
-        return View(ObjProductList);
+        var objProductList = unitOfWork.Product.GetAll("Category").ToList();
+        return View(objProductList);
     }
 
     public IActionResult Upsert(int? id)
     {
-        var productVM = new ProductVM()
+        var productVM = new ProductVM
         {
             Product = new Product(),
-            CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+            CategoryList = unitOfWork.Category.GetAll().Select(u => new SelectListItem
             {
                 Text = u.Name,
                 Value = u.Id.ToString(),
             }),
         };
-        if (id == null || id == 0)
+        
+        if (id is null or 0)
         {
             // Create
             return View(productVM);
         }
-        else
-        {
-            // Update
-            productVM.Product = _unitOfWork.Product.Get(u => u.Id == id);
-            return View(productVM);
-        }
+        // Update
+        productVM.Product = unitOfWork.Product.Get(u => u.Id == id);
+        return View(productVM);
     }
 
     [HttpPost]
@@ -51,11 +45,11 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
     {
         if (ModelState.IsValid)
         {
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            var wwwRootPath = webHostEnvironment.WebRootPath;
             if (file != null)
             {
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                string productPath = Path.Combine(wwwRootPath, @"images/product");
+                var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                var productPath = Path.Combine(wwwRootPath, "images/product");
 
                 if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
                 {
@@ -70,31 +64,30 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
                 using var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create);
                 file.CopyTo(fileStream);
 
-                productVM.Product.ImageUrl = @"/images/product/" + fileName;
+                productVM.Product.ImageUrl = "/images/product/" + fileName;
             }
 
             if (productVM.Product.Id == 0)
             {
-                _unitOfWork.Product.Add(productVM.Product);
+                unitOfWork.Product.Add(productVM.Product);
             }
             else
             {
-                _unitOfWork.Product.Update(productVM.Product);
+                unitOfWork.Product.Update(productVM.Product);
             }
-            _unitOfWork.Save();
+
+            unitOfWork.Save();
             TempData["success"] = "Product created successfully";
             return RedirectToAction(nameof(Index));
         }
-        else
-        {
-            productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-            {
-                Text = u.Name,
-                Value = u.Id.ToString(),
-            });
 
-            return View(productVM);
-        }
+        productVM.CategoryList = unitOfWork.Category.GetAll().Select(u => new SelectListItem
+        {
+            Text = u.Name,
+            Value = u.Id.ToString(),
+        });
+
+        return View(productVM);
     }
 
     #region API CALLS
@@ -102,25 +95,27 @@ public class ProductController(IUnitOfWork _unitOfWork, IWebHostEnvironment _web
     [HttpGet]
     public IActionResult GetAll()
     {
-        var objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+        var objProductList = unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
         return Json(new { data = objProductList });
     }
 
     [HttpDelete]
     public IActionResult Delete(int? id)
     {
-        var objToBeDeleted = _unitOfWork.Product.Get(u => u.Id == id);
+        var objToBeDeleted = unitOfWork.Product.Get(u => u.Id == id);
         if (objToBeDeleted == null)
         {
             return Json(new { success = false, message = "Error while deleting" });
         }
-        var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, objToBeDeleted.ImageUrl.TrimStart('/'));
+
+        var oldImagePath = Path.Combine(webHostEnvironment.WebRootPath, objToBeDeleted.ImageUrl.TrimStart('/'));
         if (System.IO.File.Exists(oldImagePath))
         {
             System.IO.File.Delete(oldImagePath);
         }
-        _unitOfWork.Product.Remove(objToBeDeleted);
-        _unitOfWork.Save();
+
+        unitOfWork.Product.Remove(objToBeDeleted);
+        unitOfWork.Save();
 
         return Json(new { success = true, message = "Delete successful" });
     }
